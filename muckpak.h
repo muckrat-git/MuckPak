@@ -40,12 +40,13 @@ typedef struct m_file {
 #define M_FOLDER_BASE_SIZE (1+4+4)
 // Folder structure for storing folder information
 typedef struct m_folder {
-    // Size information
-    uint8_t name_size;
+    uint8_t name_size;  // Length of name text
+    char * name;        // Folder name
+
+    // File and folder counts
     unsigned int file_count;
     unsigned int folder_count;
 
-    char * name;
     m_file * files;
     m_folder * subfolders;
 } m_folder;
@@ -315,15 +316,15 @@ void save_package_folder(package pkg) {
 
 // Archive a folder structure into a single data binary
 uint8_t * _archive_folder(m_folder folder, uint8_t * data) {
-    // Store sizing information
+    // Archive folder name
     data[0] = folder.name_size;
-    memcpy(data + 1, &folder.file_count, 4);
-    memcpy(data + 5, &folder.folder_count, 4);
-    data += M_FOLDER_BASE_SIZE;
-    
-    // Copy folder name
-    memcpy(data, folder.name, folder.name_size);
-    data += folder.name_size;
+    memcpy(data + 1, folder.name, folder.name_size);
+    data += folder.name_size + 1;
+
+    // Folder content counts
+    memcpy(data, &folder.file_count, 4);
+    memcpy(data + 4, &folder.folder_count, 4);
+    data += 4 + 4;
 
     // Copy files
     for(unsigned int i = 0; i < folder.file_count; ++i) {
@@ -371,17 +372,19 @@ archive archive_package(package pkg) {
 // Unarchive a folder from an archive data
 m_folder _unarchive_folder(uint8_t ** data) {
     m_folder folder = {};
-    folder.name_size = *data[0];
-    *data += 1;
-    memcpy(&folder.file_count, *data, 4);
-    *data += 4;
-    memcpy(&folder.folder_count, *data, 4);
-    *data += 4;
 
+    // Load folder name
+    folder.name_size = *data[0];
+    (*data)++;
     folder.name = (char *)malloc(folder.name_size + 1);
     memcpy(folder.name, *data, folder.name_size);
     folder.name[folder.name_size] = '\0';
     *data += folder.name_size;
+
+    // Load file and folder counts
+    memcpy(&folder.file_count, (*data), 4);
+    memcpy(&folder.folder_count, (*data) + 4, 4);
+    *data += 4 + 4;
 
     // Allocate memory for files and subfolders
     folder.files = (m_file *)malloc(sizeof(m_file) * folder.file_count);

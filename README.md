@@ -1,7 +1,11 @@
 # MuckPak
 **M**ega **U**seful **C**ontained **K**it **Packager**
 
-MuckPak is a single header C library inspired by things like Quakes and Dooms .pak/.wad files, that provides an extremely simple interface to create portable filesystems in the form of packages (a single .mpk/.mpak/.pak file). It uses a virtual file system to allow you to keep your files organized 1 to 1 with their original source, all from a single file that can be easily distributed.
+MuckPak is a single header C and C++ library inspired by things like Quakes and Dooms .pak/.wad files, that provides an extremely simple interface to create portable filesystems in the form of packages (a single .mpk/.mpak/.pak file). It uses a virtual file system to allow you to keep your files organized 1 to 1 with their original source, all from a single file that can be easily distributed.
+
+## Languages
+- **muckpak.h**:    The primary interface for the muckpak format, supports all features
+- **muckpak.hpp**:  C++ interface for the muckpak format, supports loading and reading pak files only (for now)
 
 ## Platforms
 MuckPak is designed to be cross-platform and should work on any system (and I mean **any**, this shit runs on my calculator) that supports C and the standard library
