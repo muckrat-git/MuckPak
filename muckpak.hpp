@@ -1,3 +1,5 @@
+/* Muckpak by .muckrat */
+
 #include <string>
 #include <memory.h>
 #include <stdint.h>
