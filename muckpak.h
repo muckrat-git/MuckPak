@@ -22,6 +22,12 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+// Ensure filesystem register defines exist
+#ifndef DT_DIR
+#define DT_DIR 4
+#define DT_REG 8
+#endif
+
 #ifdef _WIN32
 #include <windows.h>
 #endif
