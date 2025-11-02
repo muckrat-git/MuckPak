@@ -459,8 +459,14 @@ archive load_archive(const char * filename) {
     archive arc = {};
     FILE * f = fopen(filename, "rb");
     if(f) {
-        fseek(f, 0L, SEEK_END);
-        arc.size = ftell(f);
+        // Get size
+        fseek(f, 4, SEEK_SET);
+        size_t struct_size = 0;
+        size_t data_size = 0;
+        fread(&struct_size, 1, 8, f);
+        fread(&data_size, 1, 8, f);
+
+        arc.size = struct_size + data_size;
         fseek(f, 0L, SEEK_SET);
         arc.data = (uint8_t *)malloc(arc.size);
         fread(arc.data, 1, arc.size, f);

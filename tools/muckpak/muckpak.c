@@ -17,8 +17,19 @@ int main(int argc, char * argv[]) {
     // Check if the argument is a folder or an archive file
     struct stat st;
     if(stat(argv[1], &st) == 0) {
+        // Folder
         if(S_ISDIR(st.st_mode)) {
-            // It's a folder, create a package from it
+            // Remove trailing / if present
+            size_t size = strlen(argv[1]) - 1;
+            while(size > 0 && argv[1][size] == '/') {
+                argv[1][size] = 0;
+                --size;
+            }
+            if(size <= 0) {
+                fprintf(stderr, "Invalid folder name\n");
+                return 1;
+            }
+
             package pkg = load_package_folder(argv[1]);
 
             // If a tag is provided, set it as the package ID
@@ -33,7 +44,7 @@ int main(int argc, char * argv[]) {
 
             free_package(pkg); // Free the package resources
         } 
-        else if(S_ISREG(st.st_mode)) {
+        else if(S_ISREG(st.st_mode) || S_ISBLK(st.st_mode)) {
             // If file, dump the archive contents to the local directory
             package pkg = load_package(argv[1]);
             if(!pkg.data) {
@@ -64,6 +75,10 @@ int main(int argc, char * argv[]) {
                 printf("Package unarchived in the current directory.\n");
             }
 
+        }
+        else {
+            fprintf(stderr, "Error: %s is not a valid folder or archive file.\n", argv[1]);
+            return 1;
         }
     }
     else {
